@@ -4,55 +4,80 @@ import 'package:intl/intl.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactionList;
-  TransactionList({this.transactionList});
+  final Function deleteTransaction;
+  TransactionList({
+    this.transactionList,
+    this.deleteTransaction,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      ...transactionList
-          .map(
-            (e) => Card(
-              color: Colors.yellow,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+    return Container(
+      // height: 500,
+      // height: MediaQuery.of(context).size.height * 0.6,
+      child: transactionList.isEmpty
+          ? LayoutBuilder(builder: (ctx, constraints) {
+              return Column(
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(left: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                    ),
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      // e.amount.toString(),
-                      '\$${e.amount}',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
+                  Text(
+                    'No transaction added yet!',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(left: 5, top: 10, bottom: 5),
-                        child: Text(
-                          e.name,
-                          style: TextStyle(
-                              fontSize: 19, fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 5, top: 5, bottom: 10),
-                        child: Text(
-                          DateFormat.yMMMd().format(e.date),
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    ],
+                  SizedBox(height: 20),
+                  Container(
+                    height: constraints.maxHeight * 0.6,
+                    child: Image.asset(
+                      'assets/images/waiting.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ],
-              ),
+              );
+            })
+          : ListView.builder(
+              itemBuilder: (context, index) {
+                return Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      radius: 35,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: FittedBox(
+                          child: Text(
+                            // e.amount.toString(),
+                            '\$${transactionList[index].amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                                fontFamily: 'ArchitectsDaughter',
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      transactionList[index].name,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    subtitle: Text(
+                      DateFormat.yMMMd().format(transactionList[index].date),
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                        deleteTransaction(transactionList[index].id);
+                      },
+                      icon: Icon(
+                        Icons.delete,
+                        color: Theme.of(context).errorColor,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              itemCount: transactionList.length,
             ),
-          )
-          .toList(),
-    ]);
+    );
   }
 }
